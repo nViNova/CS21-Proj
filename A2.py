@@ -180,6 +180,9 @@ def emulate_instruction(instr: str):
 
         elif instr_only == 'clr-cf':
             REG["CF"] = '0'        
+        
+        elif instr_only == 'set-cf':
+            REG["CF"] = '1'
 
         return
 
