@@ -1,81 +1,203 @@
-REG: dict[str, int] = {
-    'RA': 0,  # 4 bits
-    'RB': 0,
-    'RD': 0,
-    'RE': 0,
-    'RC': 0,
-    'ACC': 0,  # 4 bits
-    'CF': 0,   # 1 bit
-    'TEMP': 0, # 16 bits
+import pyxel as px
+
+REG: dict[str, str] = {
+    "RA": "0000",  # 4 bits
+    "RB": "0000",
+    "RD": "0000",
+    "RE": "0000",
+    "RC": "0000",
+    "ACC": "0000",  # 4 bits
+    "CF": "0",  # 1 bit
+    "TEMP": "0000000000000000",  # 16 bits
 }
 
-NO_REGISTER_INST = {'rot-r', 'rot-l', 'rot-rc', 'rot-lc', 'from-mba', 'to-mba', 'from-mdc', 'to-mdc', 'addc-mba', 'add-mba', 'subc-mba', 'sub-mba', 'inc*-mba', 'dec*-mba', 'inc*-mdc', 'dec*-mdc'}
-LENGTH_THREE = {'b-bit'}
-START_END_INST = {'inc*-reg', 'dec*-reg', 'to-reg', 'from-reg'}
-REG_ACC = {'to-reg', 'from-reg'}
-TRIPLE_INPUT = {'b-bit'}
-FOUR_BIT_IMM_SIXTEEN = {'add', 'sub', 'and', 'xor', 'or', 'r4'}
-FOUR_BIT_IMM_EIGHT = {'acc'}
-EIGHT_BIT_IMM_SIXTEEN = {'rarb', 'rcrd'}
-ELEVEN_BIT_IMM_SIXTEEN = {'bnz-a', 'bnz-b', 'beqz', 'bnez', 'beqz-cf', 'bnez-cf', 'bnz-d'}
-TWELVE_BIT_IMM_SIXTEEN = {'b', 'call'}
+MEM: dict[str, str] = {
+    f"{i:08b}": "0000" for i in range(256)
+}  # memory address is 8 bits wide, all memory set to 0 at init
+
+def rotate(register: str, is_right: bool) -> str:
+    register_list = list(register)
+    if is_right:
+        register_list.insert(0, register_list[-1])
+        register_list.pop()
+        return "".join(register_list)
+    else:
+        register_list.append(register_list[0])
+        register_list.pop(0)
+        return "".join(register_list)
 
 
+def emulate_instruction(instr: str):
+    instr_args = instr.split()
 
-INST = {
-    'rot-r':     '0x00',
-    'rot-l':     '0x01',
-    'rot-rc':    '0x02',
-    'rot-lc':    '0x03',
-    'from-mba':  '0x04',
-    'to-mba':    '0x05',
-    'from-mdc':  '0x06',
-    'to-mdc':    '0x07',
-    'addc-mba':  '0x08',
-    'add-mba':   '0x09',
-    'subc-mba':  '0x0A',
-    'sub-mba':   '0x0B',
-    'inc*-mba':  '0x0C',
-    'dec*-mba':  '0x0D',
-    'inc*-mdc':  '0x0E',
-    'dec*-mdc':  '0x0F',
-    'inc*-reg':  ('0x1', '0'),  
-    'dec*-reg':  ('0x1', '1'),
-    'and-ba':    '0x1A',
-    'xor-ba':    '0x1B',
-    'or-ba':     '0x1C',
-    'and*-mba':  '0x1D',
-    'xor*-mba':  '0x1E',
-    'or*-mba':   '0x1F',
-    'to-reg':    ('0x2', '0'),
-    'from-reg':  ('0x2', '1'),
-    'clr-cf':    '0x2A',
-    'set-cf':    '0x2B',
-    'ret':       '0x2E',
-    'from-ioa':  '0x32',
-    'inc':       '0x31',
-    'bcd':       '0x36',
-    'shutdown':  '0x373E',
-    'nop':       '0x3E',
-    'dec':       '0x3F',
-    'add':       '0x40', 
-    'sub':       '0x41', 
-    'and':       '0x42', 
-    'xor':       '0x43', 
-    'or':        '0x44', 
-    'r4':        '0x46', 
-    'rarb':      ('0101', '0000'), 
-    'rcrd':      ('0110', '0000'), 
-    'acc':       '0x70',
-    'b-bit':    '100',
-    'bnz-a':    '10100',
-    'bnz-b':    '10101',
-    'beqz':     '10110',
-    'bnez':     '10111',
-    'beqz-cf':  '11000',
-    'bnez-cf':  '11001',
-    'bnz-d':    '11011',
-    'b':        '1110',
-    'call':     '1111',
-}
+    if len(instr_args) == 1:
+        instr_only = instr_args[0]
 
+        if instr_only == "rot-r":
+            REG["ACC"] = rotate(REG["ACC"], True)
+
+        elif instr_only == "rot-l":
+            REG["ACC"] = rotate(REG["ACC"], False)
+
+        elif instr_only == "rot-rc":
+            cfAcc = REG["CF"] + REG["ACC"]
+            cfAcc = rotate(cfAcc, True)
+            REG["CF"] = cfAcc[0]
+            REG["ACC"] = cfAcc[1:]
+
+        elif instr_only == "rot-lc":
+            cfAcc = REG["CF"] + REG["ACC"]
+            cfAcc = rotate(cfAcc, False)
+            REG["CF"] = cfAcc[0]
+            REG["ACC"] = cfAcc[1:]
+
+        elif instr_only == "from-mba":
+            REG["ACC"] = MEM[REG["RB"] + REG["RA"]]
+
+        elif instr_only == "to-mba":
+            MEM[REG["RB"] + REG["RA"]] = REG["ACC"]
+
+        elif instr_only == "from-mdc":
+            REG["ACC"] = MEM[REG["RD"] + REG["RC"]]
+
+        elif instr_only == "to-mdc":
+            MEM[REG["RD"] + REG["RC"]] = REG["ACC"]
+
+        elif instr_only == "addc-mba":
+            add_with_carry = (
+                int(REG["ACC"], 2)
+                + int(MEM[REG["RB"] + REG["RA"]], 2)
+                + int(REG["CF"], 2)
+            )
+            add_with_carry_bit_str = f"{add_with_carry:b}"
+            print(add_with_carry_bit_str)
+            if len(add_with_carry_bit_str) > 4:
+                REG["CF"] = add_with_carry_bit_str[0]
+                REG["ACC"] = add_with_carry_bit_str[1:]
+            else:
+                REG["CF"] = "0"
+                REG["ACC"] = add_with_carry_bit_str
+
+        # remove cf from input
+        elif instr_only == "add-mba":
+            add_with_carry = int(REG["ACC"], 2) + int(MEM[REG["RB"] + REG["RA"]], 2)
+            add_with_carry_bit_str = f"{add_with_carry:b}"
+            print(add_with_carry_bit_str)
+            if len(add_with_carry_bit_str) > 4:
+                REG["CF"] = add_with_carry_bit_str[0]
+                REG["ACC"] = add_with_carry_bit_str[1:]
+            else:
+                REG["CF"] = "0"
+                REG["ACC"] = add_with_carry_bit_str
+
+        # replace with -
+        elif instr_only == "subc-mba":
+            add_with_carry = (
+                int(REG["ACC"], 2)
+                - int(MEM[REG["RB"] + REG["RA"]], 2)
+                + int(REG["CF"], 2)
+            )
+            add_with_carry_bit_str = f"{add_with_carry:b}"
+            print(add_with_carry_bit_str)
+            if len(add_with_carry_bit_str) > 4:
+                REG["CF"] = add_with_carry_bit_str[0]
+                REG["ACC"] = add_with_carry_bit_str[1:]
+            else:
+                REG["CF"] = "0"
+                REG["ACC"] = add_with_carry_bit_str
+
+        # combine both
+        elif instr_only == "sub-mba":
+            add_with_carry = int(REG["ACC"], 2) - int(MEM[REG["RB"] + REG["RA"]], 2)
+            add_with_carry_bit_str = f"{add_with_carry:04b}"
+            print(add_with_carry_bit_str)
+            if len(add_with_carry_bit_str) > 4:
+                REG["CF"] = add_with_carry_bit_str[0]
+                REG["ACC"] = add_with_carry_bit_str[1:]
+            else:
+                REG["CF"] = "0"
+                REG["ACC"] = add_with_carry_bit_str
+
+        # increase MEM[b:a] by 1
+        elif instr_only == "inc*-mba":
+            # overflow handling
+            new_ba = (int(MEM[REG["RB"] + REG["RA"]], 2) + 1) % 16
+            new_ba_string = f"{new_ba:04b}"
+            MEM[REG["RB"] + REG["RA"]] = new_ba_string
+
+        # decrease MEM[b:a] by 1
+        elif instr_only == "dec*-mba":
+            # underflow handling
+            new_ba = (int(MEM[REG["RB"] + REG["RA"]], 2) - 1) % 16
+            new_ba_string = f"{new_ba:04b}"
+            MEM[REG["RB"] + REG["RA"]] = new_ba_string
+
+        # increase MEM[d:c] by 1
+        elif instr_only == "inc*-mdc":
+            # overflow handling
+            new_dc = (int(MEM[REG["RD"] + REG["RC"]], 2) + 1) % 16
+            new_dc_string = f"{new_dc:04b}"
+            MEM[REG["RB"] + REG["RA"]] = new_dc_string
+
+        # decrease MEM[d:c] by 1
+        elif instr_only == "dec*-mdc":
+            # underflow handling
+            new_dc = (int(MEM[REG["RD"] + REG["RC"]], 2) - 1) % 16
+            new_dc_string = f"{new_dc:04b}"
+            MEM[REG["RB"] + REG["RA"]] = new_dc_string
+
+        return
+
+    elif len(instr_args) == 2:
+        instr_only, reg = instr_args
+
+        # TODO two param instructions
+
+        ...
+    elif len(instr_args) == 3:
+        ...
+    else:
+        raise SyntaxError(f"Invalid Instruction '{instr}'")
+
+
+def test_overflowing_with_cf_addc_mba():
+    print("running tests for addc-mba")
+    REG["ACC"] = "1111"
+    MEM[REG["RB"] + REG["RA"]] = "1111"
+    REG["CF"] = "1"
+
+    emulate_instruction("addc-mba")
+
+    print(REG["CF"])
+    print(REG["ACC"])
+    assert REG["CF"] == "1"
+    assert REG["ACC"] == "1111"
+
+
+def test_overflowing_inc_mba():
+    print("running tests for inc-mba")
+
+    MEM[REG["RB"] + REG["RA"]] = "0111"
+    emulate_instruction("inc*-mba")
+    print(MEM[REG["RB"] + REG["RA"]])
+
+    MEM[REG["RB"] + REG["RA"]] = "1111"
+    emulate_instruction("inc*-mba")
+    print(MEM[REG["RB"] + REG["RA"]])
+
+
+def test_underflowing_dec_mba():
+    print("running tests for dec-mba")
+
+    MEM[REG["RB"] + REG["RA"]] = "0001"
+    emulate_instruction("dec*-mba")
+    print(MEM[REG["RB"] + REG["RA"]])
+
+    MEM[REG["RB"] + REG["RA"]] = "0000"
+    emulate_instruction("dec*-mba")
+    print(MEM[REG["RB"] + REG["RA"]])
+
+
+test_overflowing_with_cf_addc_mba()
+test_overflowing_inc_mba()
+test_underflowing_dec_mba()
