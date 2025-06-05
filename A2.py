@@ -3,12 +3,20 @@ import pyxel as px
 REG: dict[str, str] = {
     "RA": "0000",  # 4 bits
     "RB": "0000",
+    "RC": "0000",
     "RD": "0000",
     "RE": "0000",
-    "RC": "0000",
     "ACC": "0000",  # 4 bits
     "CF": "0",  # 1 bit
     "TEMP": "0000000000000000",  # 16 bits
+}
+
+REG_BASE_10_MAPPER: dict[str, str] = {
+    '0': 'RA',
+    '1': 'RB',
+    '2': 'RC',
+    '3': 'RD',
+    '4': 'RE'
 }
 
 MEM: dict[str, str] = {
@@ -146,11 +154,53 @@ def emulate_instruction(instr: str):
             new_dc_string = f"{new_dc:04b}"
             MEM[REG["RB"] + REG["RA"]] = new_dc_string
 
+        elif instr_only == 'and-ba':
+            and_int = int(REG["ACC"], 2) & int(MEM[REG["RB"] + REG["RA"]], 2)
+            REG["ACC"] = f'{and_int:04b}'
+        
+        elif instr_only == 'xor-ba':
+            and_int = int(REG["ACC"], 2) ^ int(MEM[REG["RB"] + REG["RA"]], 2)
+            REG["ACC"] = f'{and_int:04b}'
+
+        elif instr_only == 'or-ba':
+            and_int = int(REG["ACC"], 2) | int(MEM[REG["RB"] + REG["RA"]], 2)
+            REG["ACC"] = f'{and_int:04b}'
+        
+        elif instr_only == 'and*-mba':
+            and_int = int(REG["ACC"], 2) & int(MEM[REG["RB"] + REG["RA"]], 2)
+            MEM[REG["RB"] + REG["RA"]] = f'{and_int:04b}'
+        
+        elif instr_only == 'xor*-mba':
+            and_int = int(REG["ACC"], 2) ^ int(MEM[REG["RB"] + REG["RA"]], 2)
+            MEM[REG["RB"] + REG["RA"]] = f'{and_int:04b}'
+        
+        elif instr_only == 'or*-mba':
+            and_int = int(REG["ACC"], 2) | int(MEM[REG["RB"] + REG["RA"]], 2)
+            MEM[REG["RB"] + REG["RA"]] = f'{and_int:04b}'
+
+        elif instr_only == 'clr-cf':
+            REG["CF"] = '0'        
+
         return
 
     elif len(instr_args) == 2:
         instr_only, reg = instr_args
 
+        if instr_only == 'inc*-reg':
+            reg_int = (int(REG[REG_BASE_10_MAPPER[reg]], 2) + 1) % 16
+            reg_int_str = f"{reg_int:04b}"
+            REG[REG_BASE_10_MAPPER[reg]] = reg_int_str
+        
+        if instr_only == 'dec*-reg':
+            reg_int = (int(REG[REG_BASE_10_MAPPER[reg]], 2) - 1) % 16
+            reg_int_str = f"{reg_int:04b}"
+            REG[REG_BASE_10_MAPPER[reg]] = reg_int_str
+
+        if instr_only == 'to-reg':
+            REG[REG_BASE_10_MAPPER[reg]] = REG["ACC"]
+        
+        if instr_only == 'from-reg':
+            REG["ACC"] = REG[REG_BASE_10_MAPPER[reg]]
         # TODO two param instructions
 
         ...
