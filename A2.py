@@ -215,6 +215,7 @@ def emulate_instruction(instr: str):
             acc_int = (int(REG["ACC"], 2) - 1) % 16
             REG["ACC"] = f'{acc_int:04b}'
 
+        # TODO commands from 49
 
     elif len(instr_args) == 2:
         instr_only, reg = instr_args
