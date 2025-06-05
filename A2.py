@@ -9,6 +9,8 @@ REG: dict[str, str] = {
     "ACC": "0000",  # 4 bits
     "CF": "0",  # 1 bit
     "TEMP": "0000000000000000",  # 16 bits
+    "PC": "0000000000000000",
+    "IOA": "0000" # 4 bits
 }
 
 REG_BASE_10_MAPPER: dict[str, str] = {
@@ -33,7 +35,6 @@ def rotate(register: str, is_right: bool) -> str:
         register_list.append(register_list[0])
         register_list.pop(0)
         return "".join(register_list)
-
 
 def emulate_instruction(instr: str):
     instr_args = instr.split()
@@ -183,8 +184,37 @@ def emulate_instruction(instr: str):
         
         elif instr_only == 'set-cf':
             REG["CF"] = '1'
+        
+        elif instr_only == 'ret':
+            pc_as_list = list(REG["PC"])
+            temp_as_list = list(REG["TEMP"])
+            pc_as_list[4:] = temp_as_list[4:]
+            REG["PC"] = "".join(pc_as_list)
+            REG["TEMP"] = "0000000000000000"
+    
+        elif instr_only == 'from-ioa':
+            REG["ACC"] = REG["IOA"]
+        
+        elif instr_only == 'inc':
+            acc_int = (int(REG["ACC"], 2) + 1) % 16
+            REG["ACC"] = f'{acc_int:04b}'
 
-        return
+        elif instr_only == 'bcd':
+            if int(REG["ACC"], 2) >= 10 or REG["CF"] == 1:
+                acc_int = (int(REG["ACC"], 2) + 6) % 16
+                REG["ACC"] = f'{acc_int:04b}'
+                REG["CF"] = '1'
+        
+        elif instr_only == 'shutdown':
+            exit()
+
+        elif instr_only == 'nop':
+            ...
+        
+        elif instr_only == 'dec':
+            acc_int = (int(REG["ACC"], 2) - 1) % 16
+            REG["ACC"] = f'{acc_int:04b}'
+
 
     elif len(instr_args) == 2:
         instr_only, reg = instr_args
@@ -211,6 +241,10 @@ def emulate_instruction(instr: str):
         ...
     else:
         raise SyntaxError(f"Invalid Instruction '{instr}'")
+    
+    # update pc every instruction ran by the instruciton bit width
+    pc_update_int = (int(REG["PC"], 2) + 16) % 0b1111_1111_1111_11111
+    REG["PC"] = f'{pc_update_int:016b}'
 
 
 def test_overflowing_with_cf_addc_mba():
