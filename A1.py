@@ -10,7 +10,6 @@ REG: dict[str | int, int | bool] = {
 }
 
 NO_REGISTER_INST = {'rot-r', 'rot-l', 'rot-rc', 'rot-lc', 'from-mba', 'to-mba', 'from-mdc', 'to-mdc', 'addc-mba', 'add-mba', 'subc-mba', 'sub-mba', 'inc*-mba', 'dec*-mba', 'inc*-mdc', 'dec*-mdc'}
-LENGTH_THREE = {'b-bit'}
 START_END_INST = {'inc*-reg', 'dec*-reg', 'to-reg', 'from-reg'}
 REG_ACC = {'to-reg', 'from-reg'}
 TRIPLE_INPUT = {'b-bit'}
@@ -19,6 +18,7 @@ FOUR_BIT_IMM_EIGHT = {'acc'}
 EIGHT_BIT_IMM_SIXTEEN = {'rarb', 'rcrd'}
 ELEVEN_BIT_IMM_SIXTEEN = {'bnz-a', 'bnz-b', 'beqz', 'bnez', 'beqz-cf', 'bnez-cf', 'bnz-d'}
 TWELVE_BIT_IMM_SIXTEEN = {'b', 'call'}
+
 INST = {
     'rot-r':     '0x00',
     'rot-l':     '0x01',
@@ -197,11 +197,10 @@ def assembler(instr: str, form: str) -> str:  # has to be a str, need to sometim
         if inst not in TRIPLE_INPUT:
             raise Exception("Invalid Instruction")
         
-        if inst in LENGTH_THREE:
-            imm_extended = f'{imm:011b}'
-            imm_B = imm_extended[:3]
-            imm_A = imm_extended[3:]
-            converted_instr = INST[inst] + f'{k:02b}'  + imm_B + imm_A
+        imm_extended = f'{imm:011b}'
+        imm_B = imm_extended[:3]
+        imm_A = imm_extended[3:]
+        converted_instr = INST[inst] + f'{k:02b}'  + imm_B + imm_A
 
         if form == 'bin':
                 return converted_instr
