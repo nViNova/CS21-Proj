@@ -225,19 +225,78 @@ def emulate_instruction(instr: str):
             reg_int_str = f"{reg_int:04b}"
             REG[REG_BASE_10_MAPPER[reg]] = reg_int_str
         
-        if instr_only == 'dec*-reg':
+        elif instr_only == 'dec*-reg':
             reg_int = (int(REG[REG_BASE_10_MAPPER[reg]], 2) - 1) % 16
             reg_int_str = f"{reg_int:04b}"
             REG[REG_BASE_10_MAPPER[reg]] = reg_int_str
 
-        if instr_only == 'to-reg':
+        elif instr_only == 'to-reg':
             REG[REG_BASE_10_MAPPER[reg]] = REG["ACC"]
         
-        if instr_only == 'from-reg':
+        elif instr_only == 'from-reg':
             REG["ACC"] = REG[REG_BASE_10_MAPPER[reg]]
-        # TODO two param instructions
+        
+        # The rest of regs from here will be imm values
+        # note that reg/imm is in base 10
 
-        ...
+        elif instr_only == 'add':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            acc_int = (int(REG["ACC"], 2) + int(reg)) % 16 # convert reg from str to int for ops
+            REG["ACC"] = f'{acc_int:04b}'
+
+        elif instr_only == 'sub':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            acc_int = (int(REG["ACC"], 2) - int(reg)) % 16 # convert reg from str to int for ops
+            REG["ACC"] = f'{acc_int:04b}'
+        
+        elif instr_only == 'and':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            acc_int = (int(REG["ACC"], 2) & int(reg)) # convert reg from str to int for ops
+            REG["ACC"] = f'{acc_int:04b}'
+        
+        elif instr_only == 'xor':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            acc_int = (int(REG["ACC"], 2) ^ int(reg)) # convert reg from str to int for ops
+            REG["ACC"] = f'{acc_int:04b}'
+
+        elif instr_only == 'or':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            acc_int = (int(REG["ACC"], 2) | int(reg)) # convert reg from str to int for ops
+            REG["ACC"] = f'{acc_int:04b}'
+        
+        elif instr_only == 'r4':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            REG["RE"] = f'{reg:04b}'
+        
+        elif instr_only == 'rarb':
+            if len(f'{reg:08b}') > 8:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            imm_str = f'{reg:08b}'
+            XXXX, YYYY = imm_str[:4], imm_str[4:]
+            REG["RA"] = XXXX
+            REG["RB"] = YYYY
+
+        elif instr_only == 'rcrb':
+            if len(f'{reg:08b}') > 8:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            imm_str = f'{reg:08b}'
+            XXXX, YYYY = imm_str[:4], imm_str[4:]
+            REG["RC"] = XXXX
+            REG["RD"] = YYYY
+
+        elif instr_only == 'add':
+            if len(f'{reg:04b}') > 4:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            REG["ACC"] = f'{reg:04b}'
+
+        # TODO instructions past 67
+        
     elif len(instr_args) == 3:
         ...
     else:
