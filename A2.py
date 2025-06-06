@@ -325,7 +325,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
             
-            if REG["RA"] != 0:
+            if REG["RA"] != '0000':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -339,7 +339,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
             
-            if REG["RB"] != 0:
+            if REG["RB"] != '0000':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -353,7 +353,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["ACC"] != 0:
+            if REG["ACC"] != '0000':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -367,7 +367,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["ACC"] == 0:
+            if REG["ACC"] == '0000':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -409,7 +409,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["RD"] != 0:
+            if REG["RD"] != '0000':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
