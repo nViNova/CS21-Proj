@@ -1,3 +1,5 @@
+import argparse
+
 REG: dict[str, str] = {
     "RA": "000",  # 4 bits
     "RB": "001",
@@ -98,6 +100,31 @@ INST = {
     "call": "1111",
 }
 
+parser = argparse.ArgumentParser(
+    prog="Arch 242 Assembler",
+    description="Converts instructions to machine language"
+)
+
+parser.add_argument(
+    "input_asm"
+)
+
+args = parser.parse_args()
+
+if args.input_asm:
+    with open(args.input_asm, 'r') as f:
+        asm_code = f.read()
+        print(f"Loaded assembly code from {args.input_asm}")
+
+if args.input_asm:
+    commands = asm_code.strip()
+else:
+    commands = ""
+    raise RuntimeError("No assembly code provided. Please provide a valid input file.")
+
+# remove comments, and empty lines
+commands = [command.split("#")[0].strip() for command in commands.splitlines() if (not command.startswith("#") and command.strip())]
+print(f"Commands: {commands}")     
 
 def assembler(
     instr: str, form: str
