@@ -302,10 +302,10 @@ def emulate_instruction(instr: str):
             REG["RC"] = XXXX
             REG["RD"] = YYYY
 
-        elif instr_only == "add":
-            if len(f"{reg:04b}") > 4:
+        elif instr_only == "acc":
+            if len(f"{int(reg):04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
-            REG["ACC"] = f"{reg:04b}"
+            REG["ACC"] = f"{(int(reg)):04b}"
 
         # TODO instructions past 67
 
@@ -324,3 +324,21 @@ def main_func(commands: list[str]):
         curr_PC = int(REG["PC"], 2)
         curr_PC //= 16
         emulate_instruction(commands[curr_PC])
+
+class App:
+    def __init__(self):
+        px.init(160, 120)
+        self.x = 0
+        px.run(self.update, self.draw)
+
+    def update(self):
+        command = input()
+        emulate_instruction(command)
+
+    def draw(self):
+        px.cls(0)
+        for reg_i, reg_key in enumerate(REG):
+            px.text(0, reg_i * 10, f'{reg_key}: {REG[reg_key]}', 7)
+        # px.rect(self.x, 0, 8, 8, 9)
+
+App()
