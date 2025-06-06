@@ -27,7 +27,6 @@ if args.input_asm:
 
 class App:
     def __init__(self):
-        self.x = 0
         self.grid: list[list[int]] = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
         self.is_halted = False
         if args.input_asm:
@@ -78,8 +77,33 @@ class App:
 
     def update(self):
 
+        list_ioa = list(REG["IOA"])
+
+        if px.btn(px.KEY_UP):
+            list_ioa[0] = "1"
+        else:
+            list_ioa[0] = "0"
+
+        if px.btn(px.KEY_DOWN):
+            list_ioa[1] = "1"
+        else:
+            list_ioa[1] = "0"
+
+        if px.btn(px.KEY_LEFT):
+            list_ioa[2] = "1"
+        else:
+            list_ioa[2] = "0"
+
+        if px.btn(px.KEY_RIGHT):
+            list_ioa[3] = "1"
+        else:
+            list_ioa[3] = "0"
+        
+        REG["IOA"] = ''.join(list_ioa)
+
         curr_PC = int(REG["PC"], 2)
         curr_PC //= 16
+
         if (curr_PC < 0 or curr_PC >= len(self.commands)) and not self.is_halted:
             self.is_halted = True
             print("Program counter out of bounds, ignoring further updates.")
@@ -89,7 +113,6 @@ class App:
             print(f"Executing command: {self.commands[curr_PC]}")
             # Emulate the instruction at the current program counter
             emulate_instruction(self.commands[curr_PC])
-            print(f"Updated MEM: {MEM}")
             print(f"Updated REG: {REG}")
             print("MEM at 192",MEM[f'{192:08b}'])
 
@@ -97,6 +120,8 @@ class App:
         for address in range(192, 242):
             address_str = f'{address:08b}'
             self.parse_byte_to_row_col(address_str)
+        
+        print(REG["IOA"])
 
     def draw(self):
         px.cls(0)
