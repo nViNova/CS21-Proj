@@ -329,6 +329,28 @@ def emulate_instruction(instr: str):
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
 
+        elif instr_only == "beqz":
+            if len(f"{reg:011b}") > 11:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            pc_as_list = list(REG["PC"])
+            imm_str = f"{reg:011b}"
+            imm_as_list = list(imm_str)
+
+            if REG["ACC"] != 0:
+                pc_as_list[5:] = imm_as_list
+                REG["PC"] = "".join(pc_as_list)
+
+        elif instr_only == "bnez":
+            if len(f"{reg:011b}") > 11:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            pc_as_list = list(REG["PC"])
+            imm_str = f"{reg:011b}"
+            imm_as_list = list(imm_str)
+
+            if REG["ACC"] == 0:
+                pc_as_list[5:] = imm_as_list
+                REG["PC"] = "".join(pc_as_list)
+
     elif len(instr_args) == 3:
         if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
