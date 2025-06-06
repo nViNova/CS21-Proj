@@ -120,8 +120,6 @@ class App:
         for address in range(192, 242):
             address_str = f'{address:08b}'
             self.parse_byte_to_row_col(address_str)
-        
-        print(REG["IOA"])
 
     def draw(self):
         px.cls(0)

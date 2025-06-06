@@ -324,6 +324,8 @@ def emulate_instruction(instr: str):
             if REG["RA"] != 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "bnz-b":
             reg = int(reg)  # convert reg from str to int for ops
@@ -336,6 +338,8 @@ def emulate_instruction(instr: str):
             if REG["RB"] != 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "beqz":
             reg = int(reg)  # convert reg from str to int for ops
@@ -343,11 +347,16 @@ def emulate_instruction(instr: str):
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
             imm_str = f"{reg:011b}"
+            print(f"imm_str: {imm_str}")
             imm_as_list = list(imm_str)
 
             if REG["ACC"] != 0:
                 pc_as_list[5:] = imm_as_list
+                print(f"pc_as_list: {pc_as_list}")
                 REG["PC"] = "".join(pc_as_list)
+                print(f"Updated PC: {REG['PC']}")
+                # force non update of pc
+                return
 
         elif instr_only == "bnez":
             reg = int(reg)  # convert reg from str to int for ops
@@ -360,6 +369,8 @@ def emulate_instruction(instr: str):
             if REG["ACC"] == 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "beqz-cf":
             reg = int(reg)  # convert reg from str to int for ops
@@ -372,6 +383,8 @@ def emulate_instruction(instr: str):
             if REG["CF"] == 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "bnez-cf":
             reg = int(reg)  # convert reg from str to int for ops
@@ -384,6 +397,8 @@ def emulate_instruction(instr: str):
             if REG["CF"] != 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "bnz-d":
             reg = int(reg)  # convert reg from str to int for ops
@@ -396,6 +411,8 @@ def emulate_instruction(instr: str):
             if REG["RD"] != 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
+                # force non update of pc
+                return
 
         elif instr_only == "b":
             reg = int(reg)  # convert reg from str to int for ops
@@ -406,6 +423,8 @@ def emulate_instruction(instr: str):
             imm_as_list = list(imm_str)
             pc_as_list[4:] = imm_as_list
             REG["PC"] = "".join(pc_as_list)
+            # force non update of pc
+            return
 
         elif instr_only == "call":
             reg = int(reg)  # convert reg from str to int for ops
@@ -417,6 +436,8 @@ def emulate_instruction(instr: str):
             pc_as_list[4:] = imm_as_list
             REG["TEMP"] = str(int(REG["PC"])  + 2)
             REG["PC"] = "".join(pc_as_list)
+            # force non update of pc
+            return
 
     elif len(instr_args) == 3:
 
@@ -436,6 +457,8 @@ def emulate_instruction(instr: str):
         if k == "01":
             pc_as_list[5:] = imm_as_list
             REG["PC"] = "".join(pc_as_list)
+            # force non update of pc
+            return
 
         
         
