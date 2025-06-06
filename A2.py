@@ -1,5 +1,3 @@
-import pyxel as px
-
 REG: dict[str, str] = {
     "RA": "0000",  # 4 bits
     "RB": "0000",
@@ -404,9 +402,11 @@ def emulate_instruction(instr: str):
             REG["PC"] = "".join(pc_as_list)
 
     elif len(instr_args) == 3:
+
+        instr_only, k, reg = instr_args
+
         if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
-        instr_only, k, reg = instr_args
         k, imm_str = f"{k:02b}", f"{reg:011b}"
         pc_as_list = list(REG["PC"])
         imm_as_list = list(imm_str)
