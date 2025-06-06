@@ -351,14 +351,11 @@ def emulate_instruction(instr: str):
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
             imm_str = f"{reg:011b}"
-            print(f"imm_str: {imm_str}")
             imm_as_list = list(imm_str)
 
             if REG["ACC"] != 0:
                 pc_as_list[5:] = imm_as_list
-                print(f"pc_as_list: {pc_as_list}")
                 REG["PC"] = "".join(pc_as_list)
-                print(f"Updated PC: {REG['PC']}")
                 # force non update of pc
                 return
 
@@ -384,7 +381,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["CF"] == 0:
+            if REG["CF"] == '0':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -398,7 +395,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["CF"] != 0:
+            if REG["CF"] != '0':
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
