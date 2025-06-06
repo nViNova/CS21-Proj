@@ -318,27 +318,9 @@ def emulate_instruction(instr: str):
     pc_update_int = (int(REG["PC"], 2) + 16) % 0b1111_1111_1111_11111
     REG["PC"] = f"{pc_update_int:016b}"
 
-def main_func(commands: list[str]):
 
+def main_func(commands: list[str]):
     while True:
         curr_PC = int(REG["PC"], 2)
         curr_PC //= 16
         emulate_instruction(commands[curr_PC])
-
-class App:
-    def __init__(self):
-        px.init(160, 120)
-        self.x = 0
-        px.run(self.update, self.draw)
-
-    def update(self):
-        command = input()
-        emulate_instruction(command)
-
-    def draw(self):
-        px.cls(0)
-        for reg_i, reg_key in enumerate(REG):
-            px.text(0, reg_i * 10, f'{reg_key}: {REG[reg_key]}', 7)
-        # px.rect(self.x, 0, 8, 8, 9)
-
-App()
