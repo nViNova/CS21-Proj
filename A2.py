@@ -9,6 +9,7 @@ REG: dict[str, str] = {
     "TEMP": "0000000000000000",  # 16 bits
     "PC": "0000000000000000",
     "IOA": "0000",  # 4 bits
+    "BYTE": 0 #Next free memory location
 }
 
 REG_BASE_10_MAPPER: dict[str, str] = {
@@ -38,6 +39,13 @@ def rotate(register: str, is_right: bool) -> str:
 
 def emulate_instruction(instr: str):
     instr_args = instr.split()
+
+    #Handle .byte directive
+    if instr.startswith(".byte"):
+        val = int(instr_args.split()[1].lower().replace("0x", ""), 16)
+        MEM[REG["BYTE"]] = val
+        REG["BYTE"] += 1
+
 
     if len(instr_args) == 1:
         instr_only = instr_args[0]
