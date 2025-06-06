@@ -9,7 +9,7 @@ REG: dict[str, str] = {
     "TEMP": "0000000000000000",  # 16 bits
     "PC": "0000000000000000",
     "IOA": "0000",  # 4 bits
-    "BYTE": 0 #Next free memory location
+    "BYTE": 0,  # Next free memory location
 }
 
 REG_BASE_10_MAPPER: dict[str, str] = {
@@ -40,12 +40,11 @@ def rotate(register: str, is_right: bool) -> str:
 def emulate_instruction(instr: str):
     instr_args = instr.split()
 
-    #Handle .byte directive
+    # Handle .byte directive
     if instr.startswith(".byte"):
         val = int(instr_args.split()[1].lower().replace("0x", ""), 16)
         MEM[REG["BYTE"]] = val
         REG["BYTE"] += 1
-
 
     if len(instr_args) == 1:
         instr_only = instr_args[0]
@@ -120,7 +119,7 @@ def emulate_instruction(instr: str):
 
             add_with_carry_bit_str = f"{add_with_carry:04b}"
             if with_carry:
-                REG["CF"] = '1'
+                REG["CF"] = "1"
             else:
                 REG["CF"] = "0"
 
@@ -137,7 +136,7 @@ def emulate_instruction(instr: str):
             add_with_carry_bit_str = f"{add_with_carry:04b}"
 
             if with_carry:
-                REG["CF"] = '1'
+                REG["CF"] = "1"
             else:
                 REG["CF"] = "0"
 
@@ -336,8 +335,8 @@ def emulate_instruction(instr: str):
             pc_as_list = list(REG["PC"])
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
-            
-            if REG["RA"] != '0000':
+
+            if REG["RA"] != "0000":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -350,8 +349,8 @@ def emulate_instruction(instr: str):
             pc_as_list = list(REG["PC"])
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
-            
-            if REG["RB"] != '0000':
+
+            if REG["RB"] != "0000":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -365,7 +364,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["ACC"] == '0000':
+            if REG["ACC"] == "0000":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -379,7 +378,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["ACC"] != '0000':
+            if REG["ACC"] != "0000":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -393,7 +392,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["CF"] == '0':
+            if REG["CF"] == "0":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -407,7 +406,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["CF"] != '0':
+            if REG["CF"] != "0":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -421,7 +420,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:011b}"
             imm_as_list = list(imm_str)
 
-            if REG["RD"] != '0000':
+            if REG["RD"] != "0000":
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
                 # force non update of pc
@@ -447,34 +446,29 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:012b}"
             imm_as_list = list(imm_str)
             pc_as_list[4:] = imm_as_list
-            REG["TEMP"] = str(int(REG["PC"])  + 2)
+            REG["TEMP"] = str(int(REG["PC"]) + 2)
             REG["PC"] = "".join(pc_as_list)
             # force non update of pc
             return
 
     elif len(instr_args) == 3:
-
         instr_only, k, reg = instr_args
         k = int(k)  # convert k from str to int for ops
         reg = int(reg)  # convert reg from str to int for ops
 
-
         if len(f"{reg:011b}") > 11:
-                raise ValueError(f"Invalid Immediate Value {reg}")
-        
-        
+            raise ValueError(f"Invalid Immediate Value {reg}")
+
         imm_str = f"{reg:011b}"
         pc_as_list = list(REG["PC"])
         imm_as_list = list(imm_str)
 
-        if REG["ACC"][k] == '1':
+        if REG["ACC"][k] == "1":
             pc_as_list[5:] = imm_as_list
             REG["PC"] = "".join(pc_as_list)
             # force non update of pc
             return
 
-        
-        
     else:
         raise SyntaxError(f"Invalid Instruction '{instr}'")
 

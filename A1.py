@@ -101,22 +101,17 @@ INST = {
 }
 
 parser = argparse.ArgumentParser(
-    prog="Arch 242 Assembler",
-    description="Converts instructions to machine language"
+    prog="Arch 242 Assembler", description="Converts instructions to machine language"
 )
 
-parser.add_argument(
-    "input_asm"
-)
+parser.add_argument("input_asm")
 
-parser.add_argument(
-    "type"
-)
+parser.add_argument("type")
 
 args = parser.parse_args()
 
 if args.input_asm:
-    with open(args.input_asm, 'r') as f:
+    with open(args.input_asm, "r") as f:
         asm_code = f.read()
         print(f"Loaded assembly code from {args.input_asm}")
 
@@ -127,8 +122,13 @@ else:
     raise RuntimeError("No assembly code provided. Please provide a valid input file.")
 
 # remove comments, and empty lines
-commands = [command.split("#")[0].strip() for command in commands.splitlines() if (not command.startswith("#") and command.strip())]
-print(f"Commands: {commands}")     
+commands = [
+    command.split("#")[0].strip()
+    for command in commands.splitlines()
+    if (not command.startswith("#") and command.strip())
+]
+print(f"Commands: {commands}")
+
 
 def assembler(
     instr: str, form: str
@@ -137,7 +137,7 @@ def assembler(
     instr: list[str] = instr.split()
     print("converting", instr)
 
-   #Handle .byte directive
+    # Handle .byte directive
     if instr[0].startswith(".byte"):
         val = int(instr.split()[1].lower().replace("0x", ""), 16)
         if form == "bin":
@@ -279,6 +279,7 @@ def assembler(
 
     else:
         raise SyntaxError("Invalid Instruction")
+
 
 for command in commands:
     print(assembler(command, args.type))

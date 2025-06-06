@@ -8,20 +8,18 @@ HEIGHT = 10
 FPS = 144
 
 parser = argparse.ArgumentParser(
-    prog="Arch 242 Emulator",
-    description="Emulates Arch 242 using Pyxel"
+    prog="Arch 242 Emulator", description="Emulates Arch 242 using Pyxel"
 )
 
-parser.add_argument(
-    "input_asm"
-)
+parser.add_argument("input_asm")
 
 args = parser.parse_args()
 
 if args.input_asm:
-    with open(args.input_asm, 'r') as f:
+    with open(args.input_asm, "r") as f:
         asm_code = f.read()
         print(f"Loaded assembly code from {args.input_asm}")
+
 
 class App:
     def __init__(self):
@@ -31,22 +29,31 @@ class App:
             commands = asm_code.strip()
         else:
             commands = ""
-            raise RuntimeError("No assembly code provided. Please provide a valid input file.")        
+            raise RuntimeError(
+                "No assembly code provided. Please provide a valid input file."
+            )
 
         # remove comments, and empty lines
-        self.commands = [command.split("#")[0].strip() for command in commands.splitlines() if (not command.startswith("#") and command.strip())]
+        self.commands = [
+            command.split("#")[0].strip()
+            for command in commands.splitlines()
+            if (not command.startswith("#") and command.strip())
+        ]
         # change str branch names to instruction numbers * 16
         for i, command in enumerate(self.commands):
-            if ':' in command:
-                label = command.split(':')[0].strip()
+            if ":" in command:
+                label = command.split(":")[0].strip()
                 label_as_instruction = i * 16
                 for j in range(len(self.commands)):
                     cmd_args = self.commands[j].split()
-                    cmd_args = [str(label_as_instruction) if arg == label else arg for arg in cmd_args]
-                    self.commands[j] = ' '.join(cmd_args)
-                    
-                self.commands[i] = command.split(':')[1].strip()
-        
+                    cmd_args = [
+                        str(label_as_instruction) if arg == label else arg
+                        for arg in cmd_args
+                    ]
+                    self.commands[j] = " ".join(cmd_args)
+
+                self.commands[i] = command.split(":")[1].strip()
+
         self.stepup = False
         self.step_by_step_mode = False
 
@@ -71,19 +78,19 @@ class App:
 
         if len(address) != 8:
             raise ValueError("Address must be 8 bits long")
-        
+
         address_int = int(address, 2)
-        
+
         if address_int < 192 or address_int > 241:
             raise ValueError("Address must be between 192 and 241 inclusive")
-        
+
         byte = MEM[address]
 
-        # Important: byte is said to be a string of 8 bits, however MEM only has 4 bits, 
+        # Important: byte is said to be a string of 8 bits, however MEM only has 4 bits,
         # it is now intepreted that we use the entire 'byte'
         lower_nibble = byte
 
-        row = ((address_int - 192) // 5) 
+        row = (address_int - 192) // 5
         col = (address_int - 192) % 5
 
         for i, bit in enumerate(lower_nibble):
@@ -91,7 +98,6 @@ class App:
             self.grid[row][col * len(lower_nibble) + i] = int(bit)
 
     def update(self):
-
         list_ioa = list(REG["IOA"])
 
         if px.btn(px.KEY_O):
@@ -118,8 +124,8 @@ class App:
             list_ioa[3] = "1"
         else:
             list_ioa[3] = "0"
-        
-        REG["IOA"] = ''.join(list_ioa)
+
+        REG["IOA"] = "".join(list_ioa)
 
         curr_PC = int(REG["PC"], 2)
         curr_PC //= 16
@@ -138,7 +144,7 @@ class App:
 
             # Update grid based on memory
             for address in range(192, 242):
-                address_str = f'{address:08b}'
+                address_str = f"{address:08b}"
                 self.parse_byte_to_row_col(address_str)
 
     def draw(self):
@@ -146,5 +152,6 @@ class App:
         for i in range(HEIGHT):
             for j in range(WIDTH):
                 px.pset(j, i, 7 if self.grid[i][j] == 1 else 0)
+
 
 App()
