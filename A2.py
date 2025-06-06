@@ -86,7 +86,7 @@ def emulate_instruction(instr: str):
                 + int(MEM[REG["RB"] + REG["RA"]], 2)
                 + int(REG["CF"], 2)
             )
-            add_with_carry_bit_str = f"{add_with_carry:b}"
+            add_with_carry_bit_str = f"{add_with_carry:04b}"
             if len(add_with_carry_bit_str) > 4:
                 REG["CF"] = add_with_carry_bit_str[0]
                 REG["ACC"] = add_with_carry_bit_str[1:]
@@ -97,7 +97,7 @@ def emulate_instruction(instr: str):
         # remove cf from input
         elif instr_only == "add-mba":
             add_with_carry = int(REG["ACC"], 2) + int(MEM[REG["RB"] + REG["RA"]], 2)
-            add_with_carry_bit_str = f"{add_with_carry:b}"
+            add_with_carry_bit_str = f"{add_with_carry:04b}"
             if len(add_with_carry_bit_str) > 4:
                 REG["CF"] = add_with_carry_bit_str[0]
                 REG["ACC"] = add_with_carry_bit_str[1:]
@@ -107,29 +107,41 @@ def emulate_instruction(instr: str):
 
         # replace with -
         elif instr_only == "subc-mba":
+            with_carry = True
             add_with_carry = (
                 int(REG["ACC"], 2)
                 - int(MEM[REG["RB"] + REG["RA"]], 2)
                 + int(REG["CF"], 2)
             )
-            add_with_carry_bit_str = f"{add_with_carry:b}"
-            if len(add_with_carry_bit_str) > 4:
-                REG["CF"] = add_with_carry_bit_str[0]
-                REG["ACC"] = add_with_carry_bit_str[1:]
+
+            if add_with_carry < 0:
+                add_with_carry += 16
+                with_carry = True
+
+            add_with_carry_bit_str = f"{add_with_carry:04b}"
+            if with_carry:
+                REG["CF"] = '1'
             else:
                 REG["CF"] = "0"
-                REG["ACC"] = add_with_carry_bit_str
+
+            REG["ACC"] = add_with_carry_bit_str
 
         # combine both
         elif instr_only == "sub-mba":
             add_with_carry = int(REG["ACC"], 2) - int(MEM[REG["RB"] + REG["RA"]], 2)
+            with_carry = False
+            if add_with_carry < 0:
+                add_with_carry += 16
+                with_carry = True
+
             add_with_carry_bit_str = f"{add_with_carry:04b}"
-            if len(add_with_carry_bit_str) > 4:
-                REG["CF"] = add_with_carry_bit_str[0]
-                REG["ACC"] = add_with_carry_bit_str[1:]
+
+            if with_carry:
+                REG["CF"] = '1'
             else:
                 REG["CF"] = "0"
-                REG["ACC"] = add_with_carry_bit_str
+
+            REG["ACC"] = add_with_carry_bit_str
 
         # increase MEM[b:a] by 1
         elif instr_only == "inc*-mba":

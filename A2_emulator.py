@@ -41,7 +41,10 @@ class App:
                 label = command.split(':')[0].strip()
                 label_as_instruction = i * 16
                 for j in range(len(self.commands)):
-                    self.commands[j] = self.commands[j].replace(label, str(label_as_instruction))
+                    cmd_args = self.commands[j].split()
+                    cmd_args = [str(label_as_instruction) if arg == label else arg for arg in cmd_args]
+                    self.commands[j] = ' '.join(cmd_args)
+                    
                 self.commands[i] = command.split(':')[1].strip()
         
         self.stepup = False
@@ -54,7 +57,8 @@ class App:
     # receives 8 bits address as a str sets grid using lower nibble
     def parse_byte_to_row_col(self, address: str):
         # Address mapping for sanity checks:
-        # 192 to 196 row 0, bit 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+        # 187 188 189 190 191 row -1, underflow
+        # 192 193 194 185 196 row 0, bit 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
         # 197 to 201 row 1
         # 202 to 206 row 2
         # 207 to 211 row 3
@@ -63,7 +67,7 @@ class App:
         # 222 to 226 row 6
         # 227 to 231 row 7
         # 232 to 236 row 8
-        # 237 to 241 row 9
+        # 237 238 239 240 241 row 9
 
         if len(address) != 8:
             raise ValueError("Address must be 8 bits long")
