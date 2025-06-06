@@ -106,6 +106,14 @@ def assembler(
     instr: list[str] = instr.split()
     print("converting", instr)
 
+    #Handle .byte directive
+    if instr.startswith(".byte"):
+        val = int(instr.split()[1].lower().replace("0x", ""), 16)
+        if form == "bin":
+            return f"{val:08b}"
+        else:
+            return f"{val:08x}"
+
     # this part all good
     if len(instr) == 1:
         if instr[0] not in INST:
