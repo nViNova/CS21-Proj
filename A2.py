@@ -294,7 +294,7 @@ def emulate_instruction(instr: str):
             REG["RA"] = XXXX
             REG["RB"] = YYYY
 
-        elif instr_only == "rcrb":
+        elif instr_only == "rcrd":
             if len(f"{reg:08b}") > 8:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             imm_str = f"{reg:08b}"
@@ -307,6 +307,8 @@ def emulate_instruction(instr: str):
                 raise ValueError(f"Invalid Immediate Value {reg}")
             REG["ACC"] = f"{(int(reg)):04b}"
 
+        elif instr_only == "b-bit":
+            pass
         # TODO instructions past 67
 
     elif len(instr_args) == 3:
