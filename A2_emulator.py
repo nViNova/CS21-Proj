@@ -33,16 +33,10 @@ class App:
             commands = asm_code.strip()
         else:
             commands = ""
-            raise RuntimeError("No assembly code provided. Please provide a valid input file.")
-        
-        self.commands = commands.splitlines()
-        
+            raise RuntimeError("No assembly code provided. Please provide a valid input file.")        
+
         # remove comments, and empty lines
-        for i, command in enumerate(self.commands):
-            if command.startswith("#"):
-                self.commands.pop(i)
-            if command.strip() == "":
-                self.commands.pop(i)
+        self.commands = [command for command in commands.splitlines() if not (command.startswith("#") or not command.strip())]
 
         print(f"Commands: {self.commands}")
         px.init(WIDTH, HEIGHT, title="Arch 242 Monitor", fps=FPS)
