@@ -133,8 +133,8 @@ def assembler(
     instr: list[str] = instr.split()
     print("converting", instr)
 
-    #Handle .byte directive
-    if instr.startswith(".byte"):
+   #Handle .byte directive
+    if instr[0].startswith(".byte"):
         val = int(instr.split()[1].lower().replace("0x", ""), 16)
         if form == "bin":
             return f"{val:08b}"
