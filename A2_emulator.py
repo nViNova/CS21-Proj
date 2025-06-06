@@ -36,6 +36,14 @@ class App:
             raise RuntimeError("No assembly code provided. Please provide a valid input file.")
         
         self.commands = commands.splitlines()
+        
+        # remove comments, and empty lines
+        for i, command in enumerate(self.commands):
+            if command.startswith("#"):
+                self.commands.pop(i)
+            if command.strip() == "":
+                self.commands.pop(i)
+
         print(f"Commands: {self.commands}")
         px.init(WIDTH, HEIGHT, title="Arch 242 Monitor", fps=FPS)
         px.run(self.update, self.draw)
@@ -128,4 +136,3 @@ class App:
                 px.pset(j, i, 7 if self.grid[i][j] == 1 else 0)
 
 App()
-
