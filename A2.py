@@ -317,10 +317,32 @@ def emulate_instruction(instr: str):
             if REG["RA"] != 0:
                 pc_as_list[5:] = imm_as_list
                 REG["PC"] = "".join(pc_as_list)
-        # TODO instructions past 67
+
+        elif instr_only == "bnz-b":
+            if len(f"{reg:011b}") > 11:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            pc_as_list = list(REG["PC"])
+            imm_str = f"{reg:011b}"
+            imm_as_list = list(imm_str)
+            
+            if REG["RB"] != 0:
+                pc_as_list[5:] = imm_as_list
+                REG["PC"] = "".join(pc_as_list)
 
     elif len(instr_args) == 3:
-        ...
+        if len(f"{reg:011b}") > 11:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+        instr_only, k, reg = instr_args
+        k, imm_str = f"{k:02b}", f"{reg:011b}"
+        pc_as_list = list(REG["PC"])
+        imm_as_list = list(imm_str)
+
+        if k == "01":
+            pc_as_list[5:] = imm_as_list
+            REG["PC"] = "".join(pc_as_list)
+
+        
+        
     else:
         raise SyntaxError(f"Invalid Instruction '{instr}'")
 
