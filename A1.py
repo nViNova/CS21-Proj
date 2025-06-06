@@ -109,6 +109,10 @@ parser.add_argument(
     "input_asm"
 )
 
+parser.add_argument(
+    "type"
+)
+
 args = parser.parse_args()
 
 if args.input_asm:
@@ -276,6 +280,10 @@ def assembler(
     else:
         raise SyntaxError("Invalid Instruction")
 
+for command in commands:
+    print(assembler(command, args.type))
+    print(assembler(command, args.type))
+    print()
 
 # testing
 
