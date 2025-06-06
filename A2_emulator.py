@@ -3,12 +3,9 @@ from A2 import MEM, REG, emulate_instruction
 import argparse
 
 
-
 WIDTH = 20
 HEIGHT = 10
 FPS = 30
-
-
 parser = argparse.ArgumentParser(
     prog="Arch 242 Emulator",
     description="Emulates Arch 242 using Pyxel"
@@ -36,7 +33,7 @@ class App:
             raise RuntimeError("No assembly code provided. Please provide a valid input file.")        
 
         # remove comments, and empty lines
-        self.commands = [command for command in commands.splitlines() if not (command.startswith("#") or not command.strip())]
+        self.commands = [command.split("#")[0].strip() for command in commands.splitlines() if (not command.startswith("#") and command.strip())]
 
         print(f"Commands: {self.commands}")
         px.init(WIDTH, HEIGHT, title="Arch 242 Monitor", fps=FPS)
