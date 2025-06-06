@@ -5,7 +5,7 @@ import argparse
 
 WIDTH = 20
 HEIGHT = 10
-FPS = 15
+FPS = 144
 
 parser = argparse.ArgumentParser(
     prog="Arch 242 Emulator",
@@ -48,7 +48,7 @@ class App:
                 self.commands[i] = command.split(':')[1].strip()
         
         self.stepup = False
-        self.step_by_step_mode = True
+        self.step_by_step_mode = False
 
         print(f"Commands: {self.commands}")
         px.init(WIDTH, HEIGHT, title="Arch 242 Monitor", fps=FPS)
