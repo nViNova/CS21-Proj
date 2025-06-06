@@ -237,10 +237,10 @@ def emulate_instruction(instr: str):
             REG["ACC"] = REG[REG_BASE_10_MAPPER[reg]]
 
         # The rest of regs from here will be imm values
-        # note that reg/imm is in base 10
+        # note that reg/imm is a str in base 10
 
         elif instr_only == "add":
-            if len(f"{reg:04b}") > 4:
+            if len(reg) > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             acc_int = (
                 int(REG["ACC"], 2) + int(reg)
@@ -248,6 +248,7 @@ def emulate_instruction(instr: str):
             REG["ACC"] = f"{acc_int:04b}"
 
         elif instr_only == "sub":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             acc_int = (
@@ -256,6 +257,7 @@ def emulate_instruction(instr: str):
             REG["ACC"] = f"{acc_int:04b}"
 
         elif instr_only == "and":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             acc_int = int(REG["ACC"], 2) & int(
@@ -264,6 +266,7 @@ def emulate_instruction(instr: str):
             REG["ACC"] = f"{acc_int:04b}"
 
         elif instr_only == "xor":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             acc_int = int(REG["ACC"], 2) ^ int(
@@ -272,6 +275,7 @@ def emulate_instruction(instr: str):
             REG["ACC"] = f"{acc_int:04b}"
 
         elif instr_only == "or":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             acc_int = int(REG["ACC"], 2) | int(
@@ -280,11 +284,13 @@ def emulate_instruction(instr: str):
             REG["ACC"] = f"{acc_int:04b}"
 
         elif instr_only == "r4":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             REG["RE"] = f"{reg:04b}"
 
         elif instr_only == "rarb":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:08b}") > 8:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             imm_str = f"{reg:08b}"
@@ -293,6 +299,7 @@ def emulate_instruction(instr: str):
             REG["RB"] = YYYY
 
         elif instr_only == "rcrd":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:08b}") > 8:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             imm_str = f"{reg:08b}"
@@ -301,11 +308,13 @@ def emulate_instruction(instr: str):
             REG["RD"] = YYYY
 
         elif instr_only == "acc":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{int(reg):04b}") > 4:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             REG["ACC"] = f"{(int(reg)):04b}"
 
         elif instr_only == "bnz-a":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -317,6 +326,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "bnz-b":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -328,6 +338,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "beqz":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -339,6 +350,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "bnez":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -350,6 +362,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "beqz-cf":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -361,6 +374,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "bnez-cf":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -372,6 +386,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "bnz-d":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -383,6 +398,7 @@ def emulate_instruction(instr: str):
                 REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "b":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -392,6 +408,7 @@ def emulate_instruction(instr: str):
             REG["PC"] = "".join(pc_as_list)
 
         elif instr_only == "call":
+            reg = int(reg)  # convert reg from str to int for ops
             if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             pc_as_list = list(REG["PC"])
@@ -404,9 +421,14 @@ def emulate_instruction(instr: str):
     elif len(instr_args) == 3:
 
         instr_only, k, reg = instr_args
+        k = int(k)  # convert k from str to int for ops
+        reg = int(reg)  # convert reg from str to int for ops
+
 
         if len(f"{reg:011b}") > 11:
                 raise ValueError(f"Invalid Immediate Value {reg}")
+        
+        
         k, imm_str = f"{k:02b}", f"{reg:011b}"
         pc_as_list = list(REG["PC"])
         imm_as_list = list(imm_str)
@@ -423,10 +445,3 @@ def emulate_instruction(instr: str):
     # update pc every instruction ran by the instruciton bit width
     pc_update_int = (int(REG["PC"], 2) + 16) % 0b1111_1111_1111_11111
     REG["PC"] = f"{pc_update_int:016b}"
-
-
-def main_func(commands: list[str]):
-    while True:
-        curr_PC = int(REG["PC"], 2)
-        curr_PC //= 16
-        emulate_instruction(commands[curr_PC])
