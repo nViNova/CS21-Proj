@@ -282,7 +282,6 @@ def assembler(
 
 for command in commands:
     print(assembler(command, args.type))
-    print(assembler(command, args.type))
     print()
 
 # testing
