@@ -307,8 +307,16 @@ def emulate_instruction(instr: str):
                 raise ValueError(f"Invalid Immediate Value {reg}")
             REG["ACC"] = f"{(int(reg)):04b}"
 
-        elif instr_only == "b-bit":
-            pass
+        elif instr_only == "bnz-a":
+            if len(f"{reg:011b}") > 11:
+                raise ValueError(f"Invalid Immediate Value {reg}")
+            pc_as_list = list(REG["PC"])
+            imm_str = f"{reg:011b}"
+            imm_as_list = list(imm_str)
+            
+            if REG["RA"] != 0:
+                pc_as_list[5:] = imm_as_list
+                REG["PC"] = "".join(pc_as_list)
         # TODO instructions past 67
 
     elif len(instr_args) == 3:
