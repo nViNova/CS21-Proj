@@ -298,7 +298,7 @@ def emulate_instruction(instr: str):
             if len(f"{reg:08b}") > 8:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             imm_str = f"{reg:08b}"
-            XXXX, YYYY = imm_str[:4], imm_str[4:]
+            YYYY, XXXX = imm_str[:4], imm_str[4:]
             REG["RA"] = XXXX
             REG["RB"] = YYYY
 
@@ -307,7 +307,7 @@ def emulate_instruction(instr: str):
             if len(f"{reg:08b}") > 8:
                 raise ValueError(f"Invalid Immediate Value {reg}")
             imm_str = f"{reg:08b}"
-            XXXX, YYYY = imm_str[:4], imm_str[4:]
+            YYYY, XXXX = imm_str[:4], imm_str[4:]
             REG["RC"] = XXXX
             REG["RD"] = YYYY
 
