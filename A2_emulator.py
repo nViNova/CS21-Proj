@@ -5,7 +5,8 @@ import argparse
 
 WIDTH = 20
 HEIGHT = 10
-FPS = 30
+FPS = 15
+
 parser = argparse.ArgumentParser(
     prog="Arch 242 Emulator",
     description="Emulates Arch 242 using Pyxel"
@@ -34,6 +35,17 @@ class App:
 
         # remove comments, and empty lines
         self.commands = [command.split("#")[0].strip() for command in commands.splitlines() if (not command.startswith("#") and command.strip())]
+        # change str branch names to instruction numbers * 16
+        for i, command in enumerate(self.commands):
+            if ':' in command:
+                label = command.split(':')[0].strip()
+                label_as_instruction = i * 16
+                for j in range(len(self.commands)):
+                    self.commands[j] = self.commands[j].replace(label, str(label_as_instruction))
+                self.commands[i] = command.split(':')[1].strip()
+        
+        self.stepup = False
+        self.step_by_step_mode = True
 
         print(f"Commands: {self.commands}")
         px.init(WIDTH, HEIGHT, title="Arch 242 Monitor", fps=FPS)
@@ -78,6 +90,11 @@ class App:
 
         list_ioa = list(REG["IOA"])
 
+        if px.btn(px.KEY_O):
+            self.stepup = True
+        else:
+            self.stepup = False
+
         if px.btn(px.KEY_UP):
             list_ioa[0] = "1"
         else:
@@ -108,17 +125,17 @@ class App:
             print("Program counter out of bounds, ignoring further updates.")
         elif self.is_halted:
             ...
-        else:
+        elif self.stepup or not self.step_by_step_mode:
             print(f"Executing command: {self.commands[curr_PC]}")
             # Emulate the instruction at the current program counter
             emulate_instruction(self.commands[curr_PC])
             print(f"Updated REG: {REG}")
-            print("MEM at 192",MEM[f'{192:08b}'])
+            # print("MEM at 192",MEM[f'{192:08b}'])
 
-        # Update grid based on memory
-        for address in range(192, 242):
-            address_str = f'{address:08b}'
-            self.parse_byte_to_row_col(address_str)
+            # Update grid based on memory
+            for address in range(192, 242):
+                address_str = f'{address:08b}'
+                self.parse_byte_to_row_col(address_str)
 
     def draw(self):
         px.cls(0)
