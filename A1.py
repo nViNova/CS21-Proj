@@ -280,7 +280,7 @@ def assembler(
     else:
         raise SyntaxError("Invalid Instruction")
 
-
-for command in commands:
-    print(assembler(command, args.type))
-    print()
+with open("output.txt", "w") as f:
+    for command in commands:
+        output = assembler(command, args.type)
+        f.write(output + "\n")
