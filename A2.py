@@ -446,7 +446,7 @@ def emulate_instruction(instr: str):
             imm_str = f"{reg:012b}"
             imm_as_list = list(imm_str)
             pc_as_list[4:] = imm_as_list
-            REG["TEMP"] = str(int(REG["PC"]) + 2)
+            REG["TEMP"] = f'{int(REG["PC"], 2) + 2:016b}'  # save current pc to temp
             REG["PC"] = "".join(pc_as_list)
             # force non update of pc
             return
