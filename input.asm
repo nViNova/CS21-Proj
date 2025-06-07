@@ -94,13 +94,12 @@ left: from-mdc # get current inner column from memory
 rot-lc # rotate left save overflow to cf
 beqz-cf load_mem # no overflow, cf 0, go to load mem
 
-# TODO add border checks here for left
-
 # has overflow go to next inner column
 decrease_bit: acc 0
 to-mdc # remove old pixel
 clr-cf # reset carry flag
 rarb 3
+
 from-reg 2 # get current lower nibble address from reg 2 RC
 sub-mba # decrease by 1
 to-reg 2 # store new lower nibble back in reg 2
@@ -108,13 +107,128 @@ acc 1 # set the upcoming acc for the new inner column
 beqz-cf load_mem # if not zero, go to load mem
 dec*-reg 3 # decrease higher nibble by 1
 clr-cf # reset carry flag
-b load_mem
+
+# TODO add border checks here for left
+from-reg 3
+xor 11
+beqz left_test1
+from-reg 3
+xor 12
+beqz left_test2
+from-reg 3
+xor 13
+beqz left_test3
+xor 14
+beqz left_test4
+
+left_test1: from-reg2 #checks if 191
+xor 15 #checks if 191
+beqz left_wall_check
+b left_proceed
+
+left_test2: from-reg2 #checks if 196, 201, 206
+xor 4 #checks if 196
+beqz left_wall_check
+from-reg2
+xor 9 #checks if 201
+beqz left_wall_check
+from-reg2
+xor 14 #checks if 206
+beqz left_wall_check
+b left_proceed
+
+left_test3: from-reg2 #checks if 211, 216, 221
+xor 3 #checks if 211
+beqz left_wall_check
+from-reg2
+xor 8 #checks if 216
+beqz left_wall_check
+from-reg2
+xor 13 #checks if 221
+beqz left_wall_check
+b left_proceed
+
+eft_test4: from-reg2 #checks if 226, 231, 236
+xor 2 #checks if 226
+beqz left_wall_check
+from-reg2
+xor 7 #checks if 231
+beqz left_wall_check
+from-reg2
+xor 12 #checks if 236
+beqz left_wall_check
+b left_proceed
+
+left_wall_check:
+from-mdc
+xor 8
+beqz gameover
+
+left_proceed: b load_mem
 
 right: from-mdc # get current inner column from memory
 rot-rc # rotate left save overflow to cf
 beqz-cf load_mem # no overflow, cf 0, go to load mem
 
 # TODO add border checks here for right
+from-reg 3
+xor 12
+beqz right_test1
+from-reg 3
+xor 13
+beqz right_test2
+from-reg 3
+xor 14
+beqz right_test3
+xor 14
+beqz right_test4
+
+right_test1: from-reg2 #checks if 197, 202, 207
+xor 0 #checks if 192
+beqz right_wall_check
+from-reg2
+xor 5 #checks if 197
+beqz right_wall_check
+from-reg2
+xor 10 #checks if 202
+beqz right_wall_check
+from-reg2
+xor 15 #checks if 207
+beqz right_wall_check
+b right_proceed
+
+right_test2: from-reg2 #checks if 212, 217, 222
+xor 4 #checks if 212
+beqz right_wall_check
+from-reg2
+xor 9 #checks if 217
+beqz right_wall_check
+from-reg2
+xor 14 #checks if 222
+beqz right_wall_check
+b right_proceed
+
+right_test3: from-reg2 #checks if 227, 232, 237
+xor 3 #checks if 227
+beqz right_wall_check
+from-reg2
+xor 8 #checks if 232
+beqz right_wall_check
+from-reg2
+xor 13 #checks if 237
+beqz right_wall_check
+b right_proceed
+
+right_test4: from-reg2 #checks if 242
+xor 2 #checks if 242
+beqz right_wall_check
+
+right_wall_check:
+from-mdc
+xor 8
+beqz gameover
+
+right_proceed: b load_mem
 
 # has overflow go to next inner column
 decrease_bit: acc 0
