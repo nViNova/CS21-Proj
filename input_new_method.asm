@@ -18,7 +18,7 @@ rarb 91 # store Y value init
 acc 3
 to-mba # store Y value in MEM[91]
 rarb 100
-acc 7
+acc 2
 to-mba # store tail score in MEM[100]
 
 # 0000 -> 1000 0 = 8
@@ -169,6 +169,13 @@ and-ba # mask the current pixel value with the inverse inner column
 # now whatever pixel needed to be deleted is gone.
 call DRAW # this deletes the needed pixel
 # pixel deleted, tail memory updated
+
+#
+# SPAWN FOOD HERE
+#
+
+
+
 b start
 
 ENCODE_INNER_COLUMN: beqz BIT_0 # all 0s, BIT_0
