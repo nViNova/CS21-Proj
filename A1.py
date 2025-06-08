@@ -132,7 +132,7 @@ commands = [
 for i, command in enumerate(commands):
     if ":" in command:
         label = command.split(":")[0].strip()
-        label_as_instruction = i * 1
+        label_as_instruction = i * 2
         for j in range(len(commands)):
             cmd_args = commands[j].split()
             cmd_args = [

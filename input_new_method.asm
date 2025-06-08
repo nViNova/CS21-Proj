@@ -17,20 +17,38 @@ call GET_ADDRESS_AND_INNER_COL
 # at this point, RB:RA should have the address, and inner col should be in MEM[1]
 rarb 1 # get inner col
 from-mba # get inner col from MEM[1]
+call ENCODE_INNER_COLUMN
+# at this point, acc should have the encoded inner column value
 # # inner col now in acc
+call DRAW
+
+# 0000 -> 1000 0 = 8
+# 0001 -> 0100 1 = 4
+# 0010 -> 0010 2 = 2
+# 0011 -> 0001 3 = 1
 
 b gameover
 
-# listen for inputs
-# listen: from-ioa # all 4 should be in ACC
+ENCODE_INNER_COLUMN: beqz BIT_0 # all 0s, BIT_0
+b-bit 3 CHECK_BIT_2 # bit 3 is one, either 1 or 3
+b-bit 2 BIT_2 # when above check didnt go, only b2 is one BIT_2
+CHECK_BIT_2: b-bit 2 BIT_3 # bit 2 is also one, now a BIT_3
+b BIT_1 # above check didnt go # only bit 3 is one, now a BIT_1
 
-# # up, down, left, right in that order
-# # use b-bit to determine which input pressed
-# b-bit 0 up # go up
-# b-bit 1 down # go down
-# b-bit 2 left
-# b-bit 3 right
-# b listen # if no input, jumpt to listen
+BIT_0: acc 8
+ret
+BIT_1: acc 4
+ret
+BIT_2: acc 2
+ret
+BIT_3: acc 1
+ret
+
+# Given addressin RD:RC, inner col in ACC
+
+DRAW: to-mdc
+ret
+
 
 # ----------------
 # Draw a pixel on the screen given X: RC, Y: RD
