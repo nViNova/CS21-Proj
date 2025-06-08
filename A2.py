@@ -72,7 +72,6 @@ def emulate_instruction(instr: str):
 
         elif instr_only == "to-mba":
             MEM[REG["RB"] + REG["RA"]] = REG["ACC"]
-            print(f"MEM[{int(REG['RB'] + REG['RA'], 2)}] = {REG['ACC']}")
 
         elif instr_only == "from-mdc":
             REG["ACC"] = MEM[REG["RD"] + REG["RC"]]
@@ -207,6 +206,7 @@ def emulate_instruction(instr: str):
             pc_as_list[4:] = temp_as_list[4:]
             REG["PC"] = "".join(pc_as_list)
             REG["TEMP"] = "0000000000000000"
+            return  # force non update of pc
 
         elif instr_only == "from-ioa":
             REG["ACC"] = REG["IOA"]
@@ -474,5 +474,5 @@ def emulate_instruction(instr: str):
         raise SyntaxError(f"Invalid Instruction '{instr}'")
 
     # update pc every instruction ran by the instruciton bit width
-    pc_update_int = (int(REG["PC"], 2) + 16) % 0b1111_1111_1111_11111
+    pc_update_int = (int(REG["PC"], 2) + 2) % 0b1111_1111_1111_11111
     REG["PC"] = f"{pc_update_int:016b}"

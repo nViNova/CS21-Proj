@@ -128,11 +128,11 @@ commands = [
     if (not command.startswith("#") and command.strip())
 ]
 
-# change str branch names to instruction numbers * 16
+# change str branch names to instruction numbers * 1
 for i, command in enumerate(commands):
     if ":" in command:
         label = command.split(":")[0].strip()
-        label_as_instruction = i * 16
+        label_as_instruction = i * 1
         for j in range(len(commands)):
             cmd_args = commands[j].split()
             cmd_args = [

@@ -39,11 +39,11 @@ class App:
             for command in commands.splitlines()
             if (not command.startswith("#") and command.strip())
         ]
-        # change str branch names to instruction numbers * 16
+        # change str branch names to instruction numbers * 2
         for i, command in enumerate(self.commands):
             if ":" in command:
                 label = command.split(":")[0].strip()
-                label_as_instruction = i * 16
+                label_as_instruction = i * 2
                 for j in range(len(self.commands)):
                     cmd_args = self.commands[j].split()
                     cmd_args = [
@@ -128,7 +128,7 @@ class App:
         REG["IOA"] = "".join(list_ioa)
 
         curr_PC = int(REG["PC"], 2)
-        curr_PC //= 16
+        curr_PC //= 2
 
         if (curr_PC < 0 or curr_PC >= len(self.commands)) and not self.is_halted:
             self.is_halted = True
