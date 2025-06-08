@@ -222,31 +222,35 @@ ret
 #
 
 set_tail_memory: from-reg 4 # get snake tail number
-to-reg 1 # store it to rb
+to-reg 1 # store it to RB
 acc 0      
 to-reg 0 # set the initial upper nibble to 0
 acc 5 # offset value
 add-mba # ACC = RB + 5 sets CF if overflow
-to-reg 1 # store it to rb
-bnz-cf handle_carry # if overflow
+to-reg 1 # store it to RB
+bnz-cf handle_carry_set_tail # if overflow
 # no overflow
 from-mdc # get location
 to-mba # store it to memory + 5
 ret
 
-handle_carry: inc-reg 0 # increment RA by 1
+handle_carry_set_tail: inc-reg 0 # increment RA by 1
 from-mdc # get location
 to-mba # store it to memory + 5
 ret
 
-get_tail_memory:
+get_tail_memory: from-reg 4 # get snake tail number
+to-reg 1 # store it to RB
+acc 5  
+add-mba  
+to-reg 1 # add the offset 5   
+bnz-cf handle_carry_get_tail # if overflow
+b load_get_tail  ; skip if no overflow
 
-rarb 5 #for the 5 offset
-from-reg 4 #get snake tail number
-add-mba #increment snake tail number by 5
+handle_carry_get_tail: inc-reg 0 # add to ra
 
-rarb  #memory address to store position
-from-mdc #snake tail position
+load_get_tail: from-mba # load it to acc
+ret
 
 
 
