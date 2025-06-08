@@ -11,16 +11,37 @@ call init_vars
 # Y: 1 X: 7
 # this should output 198, inner col: 3
 
-rcrd 23
+rarb 90 # store X value init
+acc 0
+to-mba # store X value in MEM[90]
+rarb 91 # store Y value init
+acc 0
+to-mba # store Y value in MEM[91]
 
-call GET_ADDRESS_AND_INNER_COL
-# at this point, RB:RA should have the address, and inner col should be in MEM[1]
-rarb 1 # get inner col
-from-mba # get inner col from MEM[1]
+# call LISTEN_INPUT
+
+start: call GET_ADDRESS_AND_INNER_COL
+# at this point, RB:RA should have the address, and inner col should be in ACC
 call ENCODE_INNER_COLUMN
 # at this point, acc should have the encoded inner column value
 # # inner col now in acc
 call DRAW
+# increment position by 1
+rarb 90 
+from-mba # get X
+inc
+bcd # check overflow
+to-mba # store back in MEM[90]
+beqz-cf ALL_GOOD
+rarb 91
+inc*-mba
+clr-cf
+ALL_GOOD: to-reg 2 # store X in RC
+rarb 91 
+from-mba
+to-reg 3 # store Y in RD
+# now RD:RC has the coordinates
+b start
 
 # 0000 -> 1000 0 = 8
 # 0001 -> 0100 1 = 4
@@ -46,10 +67,27 @@ ret
 
 # Given addressin RD:RC, inner col in ACC
 
-DRAW: to-mdc
+DRAW: to-reg 4 # store inner col in R4
+from-reg 3 # get upper nibble
+to-reg 1 # store in RB
+from-reg 2 # get lower nibble
+to-reg 0 # store in RA
+# now RB:RA has the address, inner col in R4
+from-reg 4 # get inner col from R4
+xor-ba # toggle pixels
+to-mba
 ret
 
+# LISTEN_INPUT: from-ioa
 
+# # up, down, left, right in that order
+# # use b-bit to determine which input pressed
+# b-bit 0 up # go up
+# b-bit 1 down # go down
+# b-bit 2 left
+# b-bit 3 right
+
+# b listen # if no input, jumpt to listen
 # ----------------
 # Draw a pixel on the screen given X: RC, Y: RD
 # ----------------
@@ -153,6 +191,9 @@ from-reg 3 # get upper nibble of address
 add-mba # add 192 to the address
 to-reg 3 # store it in RD, upper nibble of address
 # now RD:RC has the address, remainder is in MEM[1], and X // 4 is in MEM[2]
+rarb 1 # get inner col
+from-mba # get inner col from MEM[1]
+# inner col remainder now in ACC
 ret
 
 # 
