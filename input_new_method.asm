@@ -18,28 +18,14 @@ rarb 91 # store Y value init
 acc 0
 to-mba # store Y value in MEM[91]
 
-# call LISTEN_INPUT
-
-start: call GET_ADDRESS_AND_INNER_COL
+start: call LISTEN_INPUT
+call GET_ADDRESS_AND_INNER_COL
 # at this point, RB:RA should have the address, and inner col should be in ACC
 call ENCODE_INNER_COLUMN
 # at this point, acc should have the encoded inner column value
 # # inner col now in acc
 call DRAW
 # increment position by 1
-rarb 90 
-from-mba # get X
-inc
-bcd # check overflow
-to-mba # store back in MEM[90]
-beqz-cf ALL_GOOD
-rarb 91
-inc*-mba
-clr-cf
-ALL_GOOD: to-reg 2 # store X in RC
-rarb 91 
-from-mba
-to-reg 3 # store Y in RD
 # now RD:RC has the coordinates
 b start
 
@@ -78,16 +64,50 @@ xor-ba # toggle pixels
 to-mba
 ret
 
-# LISTEN_INPUT: from-ioa
+LISTEN_INPUT: from-ioa
 
-# # up, down, left, right in that order
-# # use b-bit to determine which input pressed
-# b-bit 0 up # go up
-# b-bit 1 down # go down
-# b-bit 2 left
-# b-bit 3 right
+# up, down, left, right in that order
+# use b-bit to determine which input pressed
+b-bit 0 INPUT_UP # go up
+b-bit 1 INPUT_DOWN # go down
+b-bit 2 INPUT_LEFT
+b-bit 3 INPUT_RIGHT
 
-# b listen # if no input, jumpt to listen
+b LISTEN_INPUT # if no input, jumpt to listen
+
+INPUT_UP: rarb 91 # get Y from MEM[91]
+from-mba # get Y value
+dec
+b PROCESS_INPUT # process input
+
+INPUT_DOWN: rarb 91 # get Y from MEM[91]
+from-mba # get Y value
+inc
+b PROCESS_INPUT # process input
+
+INPUT_LEFT: rarb 90 # get X from MEM[90]
+from-mba # get X value
+dec
+b PROCESS_INPUT
+
+INPUT_RIGHT: rarb 90 # get X from MEM[90]
+from-mba # get X value
+inc
+b PROCESS_INPUT # process input
+
+PROCESS_INPUT: bcd
+beqz-cf INPUT_DONE
+b gameover # if X is 0 or >10, game over
+INPUT_DONE: to-mba # store new X in MEM[90]
+rarb 90 # get X from MEM[90]
+from-mba # get X value
+to-reg 2 # store X in RC
+rarb 91 # get Y from MEM[91]
+from-mba # get Y value
+to-reg 3 # store Y in RD
+# now RD:RC has the new coordinates
+ret
+
 # ----------------
 # Draw a pixel on the screen given X: RC, Y: RD
 # ----------------
