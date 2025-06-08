@@ -127,6 +127,22 @@ commands = [
     for command in commands.splitlines()
     if (not command.startswith("#") and command.strip())
 ]
+
+# change str branch names to instruction numbers * 16
+for i, command in enumerate(commands):
+    if ":" in command:
+        label = command.split(":")[0].strip()
+        label_as_instruction = i * 16
+        for j in range(len(commands)):
+            cmd_args = commands[j].split()
+            cmd_args = [
+                str(label_as_instruction) if arg == label else arg
+                for arg in cmd_args
+            ]
+            commands[j] = " ".join(cmd_args)
+
+        commands[i] = command.split(":")[1].strip()
+
 print(f"Commands: {commands}")
 
 
@@ -164,9 +180,10 @@ def assembler(
         inst, reg = instr
         if inst in START_END_INST:
             start, end = INST[inst]
+            reg = int(reg)
             # we are ensured start is at most 4 bits # reg will be a bit string, convert start and end to bit strings as well
             converted_instr = (
-                f"{int(start, 16):04b}" + REG[reg] + end
+                f"{int(start, 16):04b}" + f'{reg:03b}' + end
             )  # end is only 1 bit can put it as is
 
             if form == "bin":
