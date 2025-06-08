@@ -7,15 +7,18 @@
 call init_vars
 
 # add test rcrd
-# rd/Y: 0001 rc/X: 0010
-# Y: 1 X: 2
-# this should output 197, inner col: 2
+# rd/Y: 0001 rc/X: 0111
+# Y: 1 X: 7
+# this should output 198, inner col: 3
 
-rcrd 18 
+rcrd 23
 
 call GET_ADDRESS_AND_INNER_COL
 # at this point, RB:RA should have the address, and inner col should be in MEM[1]
-# WARN inner col has bits flipped e.g. 0010 would be the remainder in this case, however it should be 0100 since inner column needs to be flipped
+rarb 1 # get inner col
+from-mba # get inner col from MEM[1]
+# # inner col now in acc
+
 b gameover
 
 # listen for inputs
@@ -66,8 +69,10 @@ GET_ADDRESS_AND_INNER_COL: from-reg 2 # get X from RC
 # GET INNER COL
 
 # get its remainder first, for use later
-rot-l 
-rot-l
+rot-lc
+clr-cf
+rot-lc
+clr-cf
 # last 2 bits in LSB now empty, first two bits contains remainder
 rot-r
 rot-r
