@@ -17,25 +17,133 @@ to-mba # store X value in MEM[90]
 rarb 91 # store Y value init
 acc 0
 to-mba # store Y value in MEM[91]
+rarb 100
+acc 2
+to-mba # store tail score in MEM[100]
 
-start: call LISTEN_INPUT
-call set_tail_memory
-call GET_ADDRESS_AND_INNER_COL
-# at this point, RB:RA should have the address, and inner col should be in ACC
-call ENCODE_INNER_COLUMN
-# at this point, acc should have the encoded inner column value
-# # inner col now in acc
-call DRAW
-# increment position by 1
-# now RD:RC has the coordinates
-b start
+
 
 # 0000 -> 1000 0 = 8
 # 0001 -> 0100 1 = 4
 # 0010 -> 0010 2 = 2
 # 0011 -> 0001 3 = 1
 
-b gameover
+
+# All commands associated with drawing a pixel
+# At Y: RD, X: RC
+
+start: call LISTEN_INPUT
+
+# store Y: RD, X: RC in tmp memory
+rarb 104
+from-reg 3 # get Y from RD
+to-mba # store Y in MEM[110]
+rarb 105
+from-reg 2 # get X from RC
+to-mba # store X in MEM[111]
+# now RD:RC has the new coordinates of the player
+
+call GET_ADDRESS_AND_INNER_COL
+# at this point, RB:RA should have the address, and inner col should be in ACC
+call ENCODE_INNER_COLUMN
+# Draw the pixel
+to-reg 4 # store inner col in R4
+from-reg 3 # get upper nibble
+to-reg 1 # store in RB
+from-reg 2 # get lower nibble
+to-reg 0 # store in RA
+# now RB:RA has the address, inner col in R4
+from-reg 4 # get inner col from R4
+or*-mba # add the pixel to the screen while ignoring already lit pixels
+
+# get stored score
+rarb 100 # get tail score from memory
+from-mba # get tail score from memory
+to-reg 4
+
+# restore X and Y from tmp memory
+rarb 104 # get Y from MEM[110]
+from-mba # get Y value
+to-reg 3 # store Y in RD
+rarb 105 # get X from MEM[111]
+from-mba # get X value
+to-reg 2 # store X in RC
+
+UPDATE_PLAYER_TAILS: from-reg 4 # get snake tail number
+rarb 100 # store tail score in memory
+to-mba # store tail score in MEM[100]
+
+# store tail coords, current = x, y
+rarb 98 # TMP var to store new pos Y of player
+from-reg 3 # get Y from RD
+to-mba # store Y in TMP var
+rarb 99 # TMP var to store new pos X of player
+from-reg 2 # get X from RC
+to-mba # store X in TMP var
+
+TAILS_LOOP: call get_tail_memory
+
+# at this point, RD:RC has the tail coordinates
+# store this at temp vars, prev = x, y
+rarb 101 # TMP var to store tail Y
+from-reg 3 # get Y from RD
+to-mba # store tail Y in TMP var
+rarb 102 # TMP var to store tail X
+from-reg 2 # get X from RC
+to-mba # store tail X in TMP var
+
+# now get the current tail coords x, y = curr
+rarb 98 # get new pos Y of player
+from-mba # get Y from TMP var
+to-reg 3 # store Y in RD
+rarb 99 # get new pos X of player
+from-mba # get X from TMP var
+to-reg 2 # store X in RC
+# now RD:RC has the new coordinates of the player
+
+call set_tail_memory
+
+# curr = prev
+
+rarb 101 # get tail Y from TMP var
+from-mba # get tail Y from TMP var
+to-reg 3 # store tail Y in RD
+rarb 102 # get tail X from TMP var
+from-mba # get tail X from TMP var
+to-reg 2 # store tail X in RC
+
+rarb 98
+from-reg 3
+to-mba # store new pos Y in MEM[98]
+rarb 99
+from-reg 2
+to-mba # store new pos X in MEM[99]
+
+from-reg 4
+beqz LOOP_TAILS_NEAR_DONE
+
+dec*-reg 4 # decrement tail number
+b TAILS_LOOP # if not zero, loop again
+LOOP_TAILS_NEAR_DONE: call GET_ADDRESS_AND_INNER_COL
+# at this point, RB:RA should have the address, and inner col should be in ACC
+call ENCODE_INNER_COLUMN
+# change the inner column to draw to become a delete
+# XOR ur current inner column with 1111 to become its inverse
+rarb 103 # TMP var to store inner col
+to-mba # store inner col in TMP var
+acc 15 # 1111
+xor-ba # acc now has the inverse of inner column
+# now mask this with the value in mdc
+to-reg 4 # store inverse in r4
+from-mdc # get current pixel value from mdc
+to-mba # store inner col in TMP var
+# the tmp var has the current inner column
+from-reg 4 # get inverse inner column from R4
+and-ba # mask the current pixel value with the inverse inner column
+# now whatever pixel needed to be deleted is gone.
+call DRAW # this deletes the needed pixel
+# pixel deleted, tail memory updated
+b start
 
 ENCODE_INNER_COLUMN: beqz BIT_0 # all 0s, BIT_0
 b-bit 3 CHECK_BIT_2 # bit 3 is one, either 1 or 3
@@ -54,25 +162,25 @@ ret
 
 # Given addressin RD:RC, inner col in ACC
 
-DRAW: to-reg 4 # store inner col in R4
-from-reg 3 # get upper nibble
-to-reg 1 # store in RB
-from-reg 2 # get lower nibble
-to-reg 0 # store in RA
-# now RB:RA has the address, inner col in R4
-from-reg 4 # get inner col from R4
-xor-ba # toggle pixels
-to-mba
+DRAW: to-mdc # tmp fix
 ret
 
 LISTEN_INPUT: from-ioa
 
+beqz LISTEN_AGAIN
+rarb 106
+to-mba # store last known player input in MEM[106]
+
 # up, down, left, right in that order
 # use b-bit to determine which input pressed
-b-bit 0 INPUT_UP # go up
+LISTEN_AGAIN: b-bit 0 INPUT_UP # go up
 b-bit 1 INPUT_DOWN # go down
 b-bit 2 INPUT_LEFT
 b-bit 3 INPUT_RIGHT
+
+rarb 106
+from-mba
+bnez LISTEN_AGAIN
 
 b LISTEN_INPUT # if no input, jumpt to listen
 
@@ -107,6 +215,9 @@ rarb 91 # get Y from MEM[91]
 from-mba # get Y value
 to-reg 3 # store Y in RD
 # now RD:RC has the new coordinates
+# store last known player input
+
+
 ret
 
 # ----------------
@@ -154,8 +265,8 @@ clr-cf
 rot-r
 rot-r
 # this is the remainder, store it in memory
-rarb 1 # set address
-to-mba # store remainder in MEM[1]
+rarb 94 # set address
+to-mba # store remainder in MEM[94]
 # now actually divide it
 from-reg 2
 rot-rc
@@ -163,18 +274,18 @@ clr-cf
 rot-rc
 clr-cf
 # acc has the quotient store it in MEM[2]
-rarb 2
+rarb 95
 to-mba
 # now we have X // 4 in MEM[2] and the remainder in MEM[1]
 
 # GET ADDRESS
-rarb 4 
+rarb 97
 acc 4
 to-mba # init counter var
 
 # now we need to multiply the row by 5
 from-reg 3 # Get Y from RD
-rarb 0
+rarb 93
 to-mba # store current acc in temp memory
 
 rcrd 0 # clear these registers for use as TMP RB:RA
@@ -187,19 +298,19 @@ to-reg 2 # store it in RC, lower nibble of address
 beqz-cf GA_get_next_address
 # now cf is 1, increase MSB by 1
 inc*-reg 3 # increment RD, upper nibble of address
-GA_get_next_address: rarb 3 # tmp mem var
+GA_get_next_address: rarb 96 # tmp mem var
 to-mba # store acc in tmp
-rarb 4 # get counter var
+rarb 97 # get counter var
 dec*-mba # decrement counter
 from-mba
 beqz GA_done
 # if not zero, go back to self add
-rarb 3
+rarb 96
 from-mba # restore acc
-rarb 0 # restore RB:RA
+rarb 93 # restore RB:RA
 b GA_self_add
 
-GA_done: rarb 2 # prep RARB for adding X // 4, at this point, RD:RC is the multiplied value
+GA_done: rarb 95 # prep RARB for adding X // 4, at this point, RD:RC is the multiplied value
 from-reg 2 # get lower nibble of address
 add-mba # add X // 4 to the address
 to-reg 2 # store it in RC, lower nibble of address
@@ -212,46 +323,52 @@ from-reg 3 # get upper nibble of address
 add-mba # add 192 to the address
 to-reg 3 # store it in RD, upper nibble of address
 # now RD:RC has the address, remainder is in MEM[1], and X // 4 is in MEM[2]
-rarb 1 # get inner col
+rarb 94 # get inner col
 from-mba # get inner col from MEM[1]
 # inner col remainder now in ACC
 ret
 
-# 
-# UP 
+set_tail_memory: from-reg 4 # get snake tail number
+rarb 0 # prepare RARB for storing tail memory
+
+#
+# Store Y Value  
 #
 
-set_tail_memory: from-reg 4 # get snake tail number
-to-reg 1 # store it to RB
-acc 0      
-to-reg 0 # set the initial upper nibble to 0
-acc 5 # offset value
-add-mba # ACC = RB + 5 sets CF if overflow
-to-reg 1 # store it to RB
-bnz-cf handle_carry_set_tail # if overflow
-# no overflow
-from-mdc # get location
-to-mba # store it to memory + 5
+to-reg 0 # store it to RA
+from-reg 3 # get Y from RD
+to-mba # add Y to RB:RA
+
+#
+# Store X Value
+#
+
+inc*-reg 1 # increment RB, upper nibble of address
+from-reg 2 # get X from RC
+to-mba # add X to RB:RA
 ret
 
-handle_carry_set_tail: inc-reg 0 # increment RA by 1
-from-mdc # get location
-to-mba # store it to memory + 5
-ret
 
 get_tail_memory: from-reg 4 # get snake tail number
-to-reg 1 # store it to RB
-acc 5  
-add-mba  
-to-reg 1 # add the offset 5   
-bnz-cf handle_carry_get_tail # if overflow
-b load_get_tail  ; skip if no overflow
+rarb 0 # prepare RARB for getting tail memory
 
-handle_carry_get_tail: inc-reg 0 # add to ra
+#
+# Get Y Value
+#
 
-load_get_tail: from-mba # load it to acc
+to-reg 0 # store it to RA
+from-mba # get Y from RB:RA
+to-reg 3 # store Y in RD
+
+#
+# Get X Value
+#
+
+inc*-reg 1 # increment RB, upper nibble of address
+from-mba # get X from RB:RA
+to-reg 2 # store X in RC
+# now RD:RC has the tail coordinates
 ret
-
 
 
 gameover: shutdown

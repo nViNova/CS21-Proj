@@ -5,7 +5,7 @@ import argparse
 
 WIDTH = 20
 HEIGHT = 10
-FPS = 144
+FPS = 2048
 
 parser = argparse.ArgumentParser(
     prog="Arch 242 Emulator", description="Emulates Arch 242 using Pyxel"
@@ -136,11 +136,10 @@ class App:
         elif self.is_halted:
             ...
         elif self.stepup or not self.step_by_step_mode:
-            print(f"Executing command: {self.commands[curr_PC]}")
-            # Emulate the instruction at the current program counter
-            emulate_instruction(self.commands[curr_PC])
-            print(f"Updated REG: {REG}")
-            # print("MEM at 192",MEM[f'{192:08b}'])
+            with open("A2.log", "a") as log_file:
+                log_file.write(f"PC: {REG['PC']} | Command: {self.commands[curr_PC]}\n")
+                emulate_instruction(self.commands[curr_PC])
+                log_file.write(f"Updated REG: {REG}\n")
 
             # Update grid based on memory
             for address in range(192, 242):
