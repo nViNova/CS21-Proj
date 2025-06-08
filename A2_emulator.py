@@ -136,10 +136,10 @@ class App:
         elif self.is_halted:
             ...
         elif self.stepup or not self.step_by_step_mode:
-            with open("A2.log", "a") as log_file:
-                log_file.write(f"PC: {REG['PC']} | Command: {self.commands[curr_PC]}\n")
-                emulate_instruction(self.commands[curr_PC])
-                log_file.write(f"Updated REG: {REG}\n")
+            emulate_instruction(self.commands[curr_PC])
+            # with open("A2.log", "a") as log_file:
+            #     log_file.write(f"PC: {REG['PC']} | Command: {self.commands[curr_PC]}\n")
+            #     log_file.write(f"Updated REG: {REG}\n")
 
             # Update grid based on memory
             for address in range(192, 242):

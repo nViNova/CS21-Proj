@@ -12,16 +12,14 @@ call init_vars
 # this should output 198, inner col: 3
 
 rarb 90 # store X value init
-acc 0
+acc 3
 to-mba # store X value in MEM[90]
 rarb 91 # store Y value init
-acc 0
+acc 3
 to-mba # store Y value in MEM[91]
 rarb 100
-acc 2
+acc 7
 to-mba # store tail score in MEM[100]
-
-
 
 # 0000 -> 1000 0 = 8
 # 0001 -> 0100 1 = 4
@@ -43,6 +41,34 @@ from-reg 2 # get X from RC
 to-mba # store X in MEM[111]
 # now RD:RC has the new coordinates of the player
 
+# compare X and Y to all tails check for XOR is 0
+rarb 100
+from-mba # get tail score from MEM[100]
+to-reg 4 # store tail score in R4
+
+CHECK_TAIL_LOOP: call get_tail_memory
+# at this point, RD:RC has the tail coordinates
+rarb 104
+from-reg 3 # get Y of tail from RD
+xor-ba # XOR with current Y
+beqz COMPARE_X # if Y is equal, go to X compare
+b CHECK_OTHER_TAILS
+COMPARE_X: rarb 105
+from-reg 2 # get X of tail from RC
+xor-ba # XOR with current X
+beqz gameover # if X is equal, die
+CHECK_OTHER_TAILS: dec*-reg 4 # decrement tail number
+from-reg 4 # get tail number from R4
+bnez CHECK_TAIL_LOOP # if tail number is not zero, loop again
+
+# no tails intersect
+ALL_GOOD_WITH_TAIL: rarb 104 
+from-mba # get Y from MEM[110]
+to-reg 3 # store Y in RD
+rarb 105
+from-mba # get X from MEM[111]
+to-reg 2 # store X in RC
+# now RD:RC has the coordinates of the player
 call GET_ADDRESS_AND_INNER_COL
 # at this point, RB:RA should have the address, and inner col should be in ACC
 call ENCODE_INNER_COLUMN
@@ -207,17 +233,13 @@ b PROCESS_INPUT # process input
 PROCESS_INPUT: bcd
 beqz-cf INPUT_DONE
 b gameover # if X is 0 or >10, game over
-INPUT_DONE: to-mba # store new X in MEM[90]
+INPUT_DONE: to-mba # store new whatever coord
 rarb 90 # get X from MEM[90]
 from-mba # get X value
 to-reg 2 # store X in RC
 rarb 91 # get Y from MEM[91]
 from-mba # get Y value
 to-reg 3 # store Y in RD
-# now RD:RC has the new coordinates
-# store last known player input
-
-
 ret
 
 # ----------------
