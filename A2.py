@@ -72,6 +72,7 @@ def emulate_instruction(instr: str):
 
         elif instr_only == "to-mba":
             MEM[REG["RB"] + REG["RA"]] = REG["ACC"]
+            print(f"MEM[{int(REG['RB'] + REG['RA'], 2)}] = {REG['ACC']}")
 
         elif instr_only == "from-mdc":
             REG["ACC"] = MEM[REG["RD"] + REG["RC"]]
