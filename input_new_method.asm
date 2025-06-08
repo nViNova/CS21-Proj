@@ -19,6 +19,7 @@ acc 0
 to-mba # store Y value in MEM[91]
 
 start: call LISTEN_INPUT
+call set_tail_memory
 call GET_ADDRESS_AND_INNER_COL
 # at this point, RB:RA should have the address, and inner col should be in ACC
 call ENCODE_INNER_COLUMN
@@ -219,6 +220,35 @@ ret
 # 
 # UP 
 #
+
+set_tail_memory: from-reg 4 # get snake tail number
+to-reg 1 # store it to rb
+acc 0      
+to-reg 0 # set the initial upper nibble to 0
+acc 5 # offset value
+add-mba # ACC = RB + 5 sets CF if overflow
+to-reg 1 # store it to rb
+bnz-cf handle_carry # if overflow
+# no overflow
+from-mdc # get location
+to-mba # store it to memory + 5
+ret
+
+handle_carry: inc-reg 0 # increment RA by 1
+from-mdc # get location
+to-mba # store it to memory + 5
+ret
+
+get_tail_memory:
+
+rarb 5 #for the 5 offset
+from-reg 4 #get snake tail number
+add-mba #increment snake tail number by 5
+
+rarb  #memory address to store position
+from-mdc #snake tail position
+
+
 
 gameover: shutdown
 
