@@ -11,8 +11,8 @@
 
 ## Contributions
 
-- Member 1: Part A
-- Member 2: Part A
+- Member 1: Part A1, A2
+- Member 2: Part A1, A2, A3
 - Member 3: Part B
 - Member 4: Part B
 
