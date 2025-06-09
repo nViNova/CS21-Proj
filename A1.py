@@ -298,6 +298,7 @@ def assembler(
         raise SyntaxError("Invalid Instruction")
 
 with open("output.txt", "w") as f:
-    for command in commands:
+    for i, command in enumerate(commands):
         output = assembler(command, args.type)
+        # f.write(f'{i:04x}: {command}: ' + output + "\n")
         f.write(output + "\n")
