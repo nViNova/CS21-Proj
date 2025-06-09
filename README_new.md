@@ -42,8 +42,13 @@ This repository contains the relevant files for Project 1 of CS 21.
 
 The program runs as stated in the specifications. It takes 2 command-line arguments, where the first one would be the ilename containing Arch-242 assembly code, while the second one is bin or hex (denotes output format). It creates an output.txt which contains the assembled instructions.
 
+example command:
+python A1.py sample.asm bin
+
 ## How to Run Part A2
 
 This part is divided into two files: `A2.py` and `A2_emulator.py`
 A2_emulator.py will be the one to be used to run the asm file.
 
+example command:
+python A2_emulator.py sample.asm
